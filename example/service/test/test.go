@@ -12,7 +12,7 @@ func Desc() *grpc.ServiceDesc {
 type Server struct {
 }
 
-func (*Server) SayHello(c context.Context, req *HelloRequest) (*HelloResponse, error) {
+func (s *Server) SayHello(c context.Context, req *HelloRequest) (*HelloResponse, error) {
 	res := &HelloResponse{
 		Message: "Hello, " + req.Name,
 	}
