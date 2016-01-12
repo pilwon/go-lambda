@@ -1,6 +1,6 @@
 {
   "name": "go-lambda",
-  "description": "Call Go-based GRPC methods from AWS Lambda functions.",
+  "description": "Call Go GRPC services from AWS Lambda functions.",
   "version": "0.1.4",
   "license": "MIT",
   "author": {
