@@ -22,7 +22,11 @@ type Payload struct {
 }
 
 func (p *Payload) String() string {
-	return fmt.Sprintf("[Payload %s] %s", p.Context.AWSRequestID, p.Event)
+	id := ""
+	if p.Context != nil {
+		id = p.Context.AWSRequestID
+	}
+	return fmt.Sprintf("[Payload %s] %s", id, p.Event.String())
 }
 
 type PayloadEvent struct {
@@ -78,6 +82,14 @@ type Response struct {
 	Context *PayloadContext
 	Reply   *proto.Message
 	Error   error
+}
+
+func (r *Response) String() string {
+	id := ""
+	if r.Context != nil {
+		id = r.Context.AWSRequestID
+	}
+	return fmt.Sprintf("[Response %s] %s", id, (*r.Reply).String())
 }
 
 var replyMarshaler = &jsonpb.Marshaler{}
@@ -153,9 +165,11 @@ func (s *Server) Run() {
 	for {
 		select {
 		case payload := <-payloadCh:
+			log.Printf("go-lambda RCVD %s\n", payload.String())
 			go s.processPayload(payload, resCh)
 		case res := <-resCh:
 			fmt.Println(res.EncodeToJSON())
+			log.Printf("go-lambda SENT %s\n", res.String())
 		case err := <-errCh:
 			log.Fatal(err)
 		}
@@ -183,7 +197,6 @@ func (s *Server) processPayload(payload *Payload, resCh chan *Response) {
 		reply *proto.Message
 		err   error
 	)
-	log.Printf("go-lambda processing payload: %s\n", payload.String())
 	switch {
 	case payload.Event == nil:
 		err = fmt.Errorf("payload missing event")
