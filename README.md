@@ -1,6 +1,8 @@
 # go-lambda
 
 
+[![NPM](https://nodei.co/npm-dl/go-lambda.png?months=6)](https://npmjs.org/package/go-lambda)
+
 Call [Go](https://golang.org)-based [GRPC](http://www.grpc.io) methods from [AWS Lambda](https://aws.amazon.com/lambda/) functions.
 
 
