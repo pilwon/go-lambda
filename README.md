@@ -19,6 +19,10 @@ Call [Go](https://golang.org)-based [GRPC](http://www.grpc.io) methods from [AWS
 
 ## Credits
 
+* [grpc](http://www.grpc.io)
+* [golang/protobuf](https://github.com/golang/protobuf)
+* [lambda_proc](https://github.com/jasonmoo/lambda_proc)
+
   See the [contributors](https://github.com/pilwon/go-lambda/graphs/contributors).
 
 
