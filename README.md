@@ -23,7 +23,7 @@ Call [Go](https://golang.org) [GRPC](http://www.grpc.io) services from [AWS Lamb
 * [golang/protobuf](https://github.com/golang/protobuf)
 * [lambda_proc](https://github.com/jasonmoo/lambda_proc)
 
-  See the [contributors](https://github.com/pilwon/go-lambda/graphs/contributors).
+See the [contributors](https://github.com/pilwon/go-lambda/graphs/contributors).
 
 
 ## License
