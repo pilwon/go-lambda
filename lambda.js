@@ -3,8 +3,8 @@ const os = require('os');
 
 const split = require('split');
 
+const DEFAULT_PROGRAM = 'bin/' + os.platform() + '64';
 const MAX_FAILS = 4;
-const OS_PLATFORM = os.platform();
 
 var currentRequestId = null;
 var dones = {};
@@ -27,11 +27,10 @@ function callDone(requestId, err, data) {
 }
 
 function defaultSpawn() {
-  if (process.env.NODE_ENV === 'production') {
-    return childProcess.spawn('bin/' + OS_PLATFORM + '64', {stdio: ['pipe', 'pipe', process.stderr]});
-  } else {
+  if (process.env.NODE_ENV === 'development') {
     return childProcess.spawn('go', ['run', 'main.go'], {stdio: ['pipe', 'pipe', process.stderr]});
   }
+  return childProcess.spawn(DEFAULT_PROGRAM, {stdio: ['pipe', 'pipe', process.stderr]});
 }
 
 function handleFail() {
