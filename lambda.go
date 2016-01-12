@@ -21,10 +21,18 @@ type Payload struct {
 	Context *PayloadContext `json:"context"`
 }
 
+func (p *Payload) String() string {
+	return fmt.Sprintf("[Payload %s] %s", p.Context.AWSRequestID, p.Event)
+}
+
 type PayloadEvent struct {
 	Service *string          `json:"service"`
 	Method  *string          `json:"method"`
 	Data    *json.RawMessage `json:"data"`
+}
+
+func (e *PayloadEvent) String() string {
+	return fmt.Sprintf("[%s] %s", NewMethodID(*e.Service, *e.Method), *e.Data)
 }
 
 type PayloadContext struct {
@@ -175,6 +183,7 @@ func (s *Server) processPayload(payload *Payload, resCh chan *Response) {
 		reply *proto.Message
 		err   error
 	)
+	log.Printf("go-lambda processing payload: %s\n", payload.String())
 	switch {
 	case payload.Event == nil:
 		err = fmt.Errorf("payload missing event")
