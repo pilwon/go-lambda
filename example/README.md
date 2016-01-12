@@ -10,6 +10,7 @@
 ### Develop
 
     go run main.go
+    NODE_ENV=development node .
 
 ### Build
 
