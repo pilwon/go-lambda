@@ -12,13 +12,6 @@ var failCount = 0;
 var go = null;
 var spawn = defaultSpawn;
 
-function exit(code) {
-  if (go) {
-    go.kill();
-  }
-  process.exit(code);
-}
-
 function callDone(requestId, err, data) {
   var done = requestId ? dones[requestId] : null;
   if (!done) {
@@ -27,7 +20,7 @@ function callDone(requestId, err, data) {
     }
     console.error(dones);
     console.error('cannot call done for request ID ' + requestId);
-    exit(1);
+    process.exit(1);
   }
   done(err, data);
   delete dones[requestId];
@@ -42,7 +35,7 @@ function defaultSpawn() {
 
 function handleFail() {
   if (++failCount > MAX_FAILS) {
-    exit(1);  // force container restart
+    process.exit(1);  // force container restart
   }
   spawnSubProcess();
 }
@@ -78,11 +71,11 @@ function spawnSubProcess() {
 exports.init = function (spawnOverride) {
   if (go) {
     console.error('go-lambda already initialized');
-    exit(1);
+    process.exit(1);
   } else if (typeof spawnOverride != 'undefined') {
     if (typeof spawnOverride != 'function') {
       console.error('spawnOverride must be function');
-      exit(1);
+      process.exit(1);
     }
     spawn = spawnOverride;
   }
@@ -92,7 +85,7 @@ exports.init = function (spawnOverride) {
 exports.handle = function (event, context) {
   if (!go) {
     console.error('go-lambda not initialized');
-    exit(1);
+    process.exit(1);
   }
   currentRequestId = context.awsRequestId;
   dones[currentRequestId] = context.done.bind(context);
