@@ -1,0 +1,25 @@
+{
+  "name": "go-lambda",
+  "description": "Call Go-based GRPC methods from AWS Lambda functions.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": {
+    "name": "Pilwon Huh",
+    "email": "pilwon@gmail.com"
+  },
+  "homepage": "https://github.com/pilwon/go-lambda",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/pilwon/go-lambda.git"
+  },
+  "keywords": [
+    "aws",
+    "lambda",
+    "go",
+    "grpc"
+  ],
+  "main": "lambda.js",
+  "dependencies": {
+    "split": "1.0.0"
+  }
+}
