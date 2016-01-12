@@ -18,8 +18,5 @@
     "go",
     "grpc"
   ],
-  "main": "lambda.js",
-  "dependencies": {
-    "split": "1.0.0"
-  }
+  "main": "lambda.js"
 }

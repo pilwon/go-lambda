@@ -1,7 +1,7 @@
 const childProcess = require('child_process');
 const os = require('os');
 
-const split = require('split');
+const split = require('./node_vendor/split');
 
 const DEFAULT_PROGRAM = 'bin/' + os.platform() + '64';
 const MAX_FAILS = 4;
