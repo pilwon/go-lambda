@@ -32,7 +32,8 @@
 
 ```json
 {
-  "service": "test.Test",
+  "package": "test",
+  "service": "Test",
   "method": "SayHello",
   "data": {
     "name": "foo"
@@ -45,5 +46,5 @@
     go run main.go
 
 ```json
-{"context":{"awsRequestId":"1"},"event":{"service":"test.Test","method":"SayHello","data":{"name":"foo"}}}
+{"context":{"awsRequestId":"1"},"event":{"package":"test","service":"Test","method":"SayHello","data":{"name":"foo"}}}
 ```

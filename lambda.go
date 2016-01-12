@@ -30,13 +30,14 @@ func (p *Payload) String() string {
 }
 
 type PayloadEvent struct {
+	Package *string          `json:"package"`
 	Service *string          `json:"service"`
 	Method  *string          `json:"method"`
 	Data    *json.RawMessage `json:"data"`
 }
 
 func (e *PayloadEvent) String() string {
-	return fmt.Sprintf("[%s] %s", NewMethodID(*e.Service, *e.Method), *e.Data)
+	return fmt.Sprintf("[%s] %s", NewMethodID(*e.Package, *e.Service, *e.Method), *e.Data)
 }
 
 type PayloadContext struct {
@@ -124,8 +125,13 @@ type Service struct {
 
 type MethodID string
 
-func NewMethodID(service string, method string) MethodID {
-	id := fmt.Sprintf("%s/%s", service, method)
+func NewMethodID(pkg string, svc string, mtd string) MethodID {
+	var id string
+	if pkg == "" {
+		id = fmt.Sprintf("%s/%s", svc, mtd)
+	} else {
+		id = fmt.Sprintf("%s.%s/%s", pkg, svc, mtd)
+	}
 	return MethodID(id)
 }
 
@@ -151,7 +157,7 @@ func NewServer() *Server {
 func (s *Server) Register(svcs []Service) {
 	for _, svc := range svcs {
 		for _, md := range svc.ServiceDesc.Methods {
-			uid := NewMethodID(svc.ServiceDesc.ServiceName, md.MethodName)
+			uid := NewMethodID("", svc.ServiceDesc.ServiceName, md.MethodName)
 			s.handlers[uid] = handler{svc.Server, &md}
 		}
 	}
@@ -200,6 +206,9 @@ func (s *Server) processPayload(payload *Payload, resCh chan *Response) {
 	switch {
 	case payload.Event == nil:
 		err = fmt.Errorf("payload missing event")
+	case payload.Event.Package == nil:
+		*payload.Event.Package = ""
+		fallthrough
 	case payload.Event.Service == nil:
 		err = fmt.Errorf("payload missing event.service")
 	case payload.Event.Method == nil:
@@ -211,7 +220,7 @@ func (s *Server) processPayload(payload *Payload, resCh chan *Response) {
 		} else {
 			data = bytes.NewReader(*payload.Event.Data)
 		}
-		methodID := NewMethodID(*payload.Event.Service, *payload.Event.Method)
+		methodID := NewMethodID(*payload.Event.Package, *payload.Event.Service, *payload.Event.Method)
 		reply, err = s.callGRPCMethod(methodID, data)
 	}
 	resCh <- NewResponse(payload.Context, reply, err)
