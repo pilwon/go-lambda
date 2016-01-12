@@ -10,7 +10,6 @@ var currentRequestId = null;
 var dones = {};
 var failCount = 0;
 var go = null;
-var initialized = false;
 
 function callDone(requestId, err, data) {
   var done = requestId ? dones[requestId] : null;
