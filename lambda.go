@@ -90,6 +90,9 @@ func (r *Response) String() string {
 	if r.Context != nil {
 		id = r.Context.AWSRequestID
 	}
+	if r.Error != nil {
+		return fmt.Sprintf("[Response %s] Error: %s", id, r.Error.Error())
+	}
 	return fmt.Sprintf("[Response %s] %s", id, (*r.Reply).String())
 }
 
