@@ -19,7 +19,7 @@
 
     mkdir -p {bin,dist,node_modules}
     GOOS=linux GOARCH=amd64 go build -v -o bin/linux64
-    zip -r dist/lambda.zip bin/linux64 node_modules/ index.js
+    zip dist/lambda.zip bin/linux64 node_modules/ index.js
     # Deploy dist/lambda.zip
 
 
