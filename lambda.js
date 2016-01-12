@@ -10,6 +10,7 @@ var currentRequestId = null;
 var dones = {};
 var failCount = 0;
 var go = null;
+var spawn = defaultSpawn;
 
 function callDone(requestId, err, data) {
   var done = requestId ? dones[requestId] : null;
@@ -40,7 +41,7 @@ function handleFail() {
   spawnSubProcess();
 }
 
-function spawnSubProcess(spawn) {
+function spawnSubProcess() {
   go = spawn();
   go.on('error', function (err) {
     process.stderr.write('Go process errored: ' + JSON.stringify(err) + '\n');
@@ -68,15 +69,18 @@ function spawnSubProcess(spawn) {
   });
 }
 
-exports.init = function (spawn) {
+exports.init = function (spawnOverride) {
   if (go) {
     console.error('go-lambda already initialized');
     process.exit(1);
-  } else if (typeof spawn != 'undefined' && typeof spawn != 'function') {
-    console.error('spawn must be function');
-    process.exit(1);
+  } else if (typeof spawnOverride != 'undefined') {
+    if (typeof spawnOverride != 'function') {
+      console.error('spawnOverride must be function');
+      process.exit(1);
+    }
+    spawn = spawnOverride;
   }
-  spawnSubProcess(spawn || defaultSpawn);
+  spawnSubProcess();
 };
 
 exports.handle = function (event, context) {
