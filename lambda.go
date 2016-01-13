@@ -22,11 +22,14 @@ type Payload struct {
 }
 
 func (p *Payload) String() string {
-	id := ""
+	var id, ev string
 	if p.Context != nil {
 		id = p.Context.AWSRequestID
 	}
-	return fmt.Sprintf("[Payload %s] %s", id, p.Event.String())
+	if p.Event != nil {
+		ev = p.Event.String()
+	}
+	return fmt.Sprintf("[Payload %s] %s", id, ev)
 }
 
 type PayloadEvent struct {
@@ -37,7 +40,20 @@ type PayloadEvent struct {
 }
 
 func (e *PayloadEvent) String() string {
-	return fmt.Sprintf("[%s] %s", NewMethodID(*e.Package, *e.Service, *e.Method), *e.Data)
+	var p, s, m, d string
+	if e.Package != nil {
+		p = *e.Package
+	}
+	if e.Service != nil {
+		s = *e.Service
+	}
+	if e.Method != nil {
+		m = *e.Method
+	}
+	if e.Data != nil {
+		d = string(*e.Data)
+	}
+	return fmt.Sprintf("[%s] %s", NewMethodID(p, s, m), d)
 }
 
 type PayloadContext struct {
@@ -202,30 +218,30 @@ func (s *Server) listenStdin(payloadCh chan *Payload, resCh chan *Response, errC
 }
 
 func (s *Server) processPayload(payload *Payload, resCh chan *Response) {
-	var (
-		reply *proto.Message
-		err   error
-	)
-	switch {
-	case payload.Event == nil:
-		err = fmt.Errorf("payload missing event")
-	case payload.Event.Package == nil:
-		*payload.Event.Package = ""
-		fallthrough
-	case payload.Event.Service == nil:
-		err = fmt.Errorf("payload missing event.service")
-	case payload.Event.Method == nil:
-		err = fmt.Errorf("payload missing event.method")
-	default:
-		var data io.Reader
-		if payload.Event.Data == nil {
-			data = strings.NewReader("{}")
-		} else {
-			data = bytes.NewReader(*payload.Event.Data)
-		}
-		methodID := NewMethodID(*payload.Event.Package, *payload.Event.Service, *payload.Event.Method)
-		reply, err = s.callGRPCMethod(methodID, data)
+	if payload.Event == nil {
+		resCh <- NewResponse(nil, nil, fmt.Errorf("payload missing event"))
+		return
 	}
+	if payload.Event.Package == nil {
+		var p string
+		payload.Event.Package = &p
+	}
+	if payload.Event.Service == nil {
+		resCh <- NewResponse(nil, nil, fmt.Errorf("payload missing event.service"))
+		return
+	}
+	if payload.Event.Method == nil {
+		resCh <- NewResponse(nil, nil, fmt.Errorf("payload missing event.method"))
+		return
+	}
+	var data io.Reader
+	if payload.Event.Data == nil {
+		data = strings.NewReader("{}")
+	} else {
+		data = bytes.NewReader(*payload.Event.Data)
+	}
+	methodID := NewMethodID(*payload.Event.Package, *payload.Event.Service, *payload.Event.Method)
+	reply, err := s.callGRPCMethod(methodID, data)
 	resCh <- NewResponse(payload.Context, reply, err)
 }
 
@@ -238,7 +254,7 @@ func (s *Server) callGRPCMethod(id MethodID, data io.Reader) (*proto.Message, er
 	}
 	h, ok := s.handlers[id]
 	if !ok {
-		return nil, fmt.Errorf("method (%s) handler not found", id)
+		return nil, fmt.Errorf("method handler not found - %s", id)
 	}
 	reply, err := h.md.Handler(h.srv, context.Background(), decode)
 	if err != nil {
